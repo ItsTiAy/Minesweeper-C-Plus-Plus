@@ -16,7 +16,9 @@ void Button::SetOnClick(const std::function<void()>& handler)
 	Click = handler;
 }
 
-void Button::Draw(sf::RenderWindow& window)
+void Button::Draw(sf::RenderWindow& window) const
 {
     window.draw(sprite);
 }
+
+Button::~Button() {};

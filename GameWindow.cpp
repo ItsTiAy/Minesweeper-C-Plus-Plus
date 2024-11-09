@@ -1,37 +1,21 @@
 #include "GameWindow.h"
-#include "Tile.h"
-#include "Button.h"
-#include <SFML/Graphics.hpp>
-#include <list>
-#include <vector>
-#include <string>
-#include <random>
-#include <iostream>
 
 GameWindow::GameWindow()
 {
-    int columns = 25;
-    int rows = 16;
+    std::cout << "Game Window" << std::endl;
 
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Minesweeper", sf::Style::Close);
+    int columns = ResourceManager::GetColumns();
+    int rows = ResourceManager::GetRows();
+    int mines = ResourceManager::GetMines();
+
+    sf::RenderWindow window(sf::VideoMode((columns * 32.f), (rows * 32.f) + 100.f), "Minesweeper", sf::Style::Close);
 
     tiles = std::vector<std::vector<Tile*>>(columns, std::vector<Tile*>(rows, nullptr));
 
-    tileUpTexture.loadFromFile("files/images/tile_up.png");
-    tileDownTexture.loadFromFile("files/images/tile_down.png");
-
-    happyFaceTexture.loadFromFile("files/images/face_happy.png");
-    debugTexture.loadFromFile("files/images/debug.png");
-    pauseTexture.loadFromFile("files/images/pause.png");
-    playTexture.loadFromFile("files/images/play.png");
-    leaderboardTexture.loadFromFile("files/images/leaderboard.png");
-
-    font.loadFromFile("arial.ttf");
-
-    Button faceButton(((columns / 2.f) * 32) - 32.f, 32.f * (rows + 0.5f), happyFaceTexture);
-    Button debugButton((columns * 32) - 304.f, 32.f * (rows + 0.5f), debugTexture);
-    Button playPauseButton((columns * 32) - 240.f, 32.f * (rows + 0.5f), pauseTexture);
-    Button leaderboardButton((columns * 32) - 176.f, 32.f * (rows + 0.5f), leaderboardTexture);
+    Button faceButton(((columns / 2.f) * 32) - 32.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("face_happy.png"));
+    Button debugButton((columns * 32) - 304.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("debug.png"));
+    Button playPauseButton((columns * 32) - 240.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("play.png"));
+    Button leaderboardButton((columns * 32) - 176.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("leaderboard.png"));
 
     faceButton.SetOnClick([]() 
     {
@@ -48,12 +32,17 @@ GameWindow::GameWindow()
         std::cout << "Play Pause Button" << std::endl;
     });
 
-    leaderboardButton.SetOnClick([]()
+    bool leaderboardOpen = false;
+
+    leaderboardButton.SetOnClick([&]()
     {
         std::cout << "Leaderboard Button" << std::endl;
+        leaderboardOpen = true;
+        LeaderboardWindow leaderboardWindow;
+        leaderboardOpen = false;
     });
 
-    GenerateGrid(rows, columns, 50);
+    GenerateGrid(columns, rows, mines);
 
     while (window.isOpen())
     {
@@ -67,37 +56,47 @@ GameWindow::GameWindow()
                 window.close();
             }
 
-            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
+            if (event.type == sf::Event::MouseButtonReleased)
             {
                 for (int i = 0; i < rows; i++)
                 {
                     for (int j = 0; j < columns; j++)
                     {
-                        if(tiles[j][i] -> IsMouseOver(mousePos))
+                        if (tiles[j][i] -> IsPressed(mousePos))
                         {
-                            tiles[j][i] -> RevealTile();
+                            if (event.mouseButton.button == sf::Mouse::Left)
+                            {
+                                tiles[j][i] -> Click();
+                            }
+                            else if (event.mouseButton.button == sf::Mouse::Right)
+                            {
+                                //tiles[j][i] -> 
+                            }
                         }
                     }
                 }
 
-                if (faceButton.IsPressed(mousePos))
+                if (event.mouseButton.button == sf::Mouse::Left)
                 {
-                    faceButton.Click();
-                }
+                    if (faceButton.IsPressed(mousePos))
+                    {
+                        faceButton.Click();
+                    }
 
-                if (debugButton.IsPressed(mousePos))
-                {
-                    debugButton.Click();
-                }
+                    if (debugButton.IsPressed(mousePos))
+                    {
+                        debugButton.Click();
+                    }
 
-                if (playPauseButton.IsPressed(mousePos))
-                {
-                    playPauseButton.Click();
-                }
+                    if (playPauseButton.IsPressed(mousePos))
+                    {
+                        playPauseButton.Click();
+                    }
 
-                if (leaderboardButton.IsPressed(mousePos))
-                {
-                    leaderboardButton.Click();
+                    if (leaderboardButton.IsPressed(mousePos))
+                    {
+                        leaderboardButton.Click();
+                    }
                 }
             }
         }
@@ -129,13 +128,13 @@ GameWindow::GameWindow()
     }
 }
 
-void GameWindow::GenerateGrid(int rows, int columns, int mines)
+void GameWindow::GenerateGrid(int columns, int rows, int mines)
 {
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < columns; j++)
         {
-            tiles[j][i] = new Tile(j * 32.f, i * 32.f, tileUpTexture, tileDownTexture, font);
+            tiles[j][i] = new Tile(j * 32.f, i * 32.f, ResourceManager::GetTexture("tile_up.png"));
         }
     }
 

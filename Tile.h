@@ -1,28 +1,26 @@
 #pragma once
+#include "Button.h"
+#include "ResourceManager.h"
+#include <fstream>
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
-class Tile
+class Tile : public Button
 {
 private:
     bool isFlagged = false;
     bool isRevealed = false;
     int adjacentMinesCount = 0;
     std::vector<Tile*> adjacentTiles;
-    sf::Sprite sprite;
     std::string name;
-    sf::Texture tileUpTexture;
-    sf::Texture tileDownTexture;
     sf::Text text;
 public:
-    Tile(float, float, sf::Texture&, sf::Texture&, sf::Font&);
+    Tile(float, float, sf::Texture&);
     void IncreaseAdjacentMinesCount();
     void AddAdjacentTile(Tile*);
-    void RevealTile();
     void SetAsMine();
-    int GetAdjacentMinesCount();
-    void Draw(sf::RenderWindow& window);
+    int GetAdjacentMinesCount() const;
+    void Draw(sf::RenderWindow& window) const override;
     std::string GetName();
-    bool IsMouseOver(const sf::Vector2f&);
 };
 

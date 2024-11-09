@@ -1,17 +1,11 @@
 #include "Tile.h"
-#include <vector>
-#include <SFML/Graphics.hpp>
-#include <string>
 
-Tile::Tile(float x, float y, sf::Texture& tileUpTexture, sf::Texture& tileDownTexture, sf::Font& font)
+Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTexture)
 {
-    this->tileUpTexture = tileUpTexture;
-    this->tileDownTexture = tileDownTexture;
-
-    sprite.setTexture(this->tileUpTexture);
+    sprite.setTexture(tileUpTexture);
     sprite.setPosition(x, y);
 
-    text.setFont(font);
+    text.setFont(ResourceManager::GetFont("arial.ttf"));
     text.setFillColor(sf::Color::Black);
     text.setCharacterSize(20);
 
@@ -20,6 +14,29 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture, sf::Texture& tileDownTe
     text.setPosition(sf::Vector2f(x + 8, y + 8));
 
     name = "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
+
+    Click = [&]()
+    {
+        if (isRevealed)
+        {
+            return;
+        }
+
+        isRevealed = true;
+
+        sprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
+
+        if (adjacentMinesCount > 0)
+        {
+            text.setString(std::to_string(adjacentMinesCount));
+            return;
+        }
+
+        for (Tile* tile : adjacentTiles)
+        {
+            tile -> Click();
+        }
+    };
 }
 
 std::string Tile::GetName()
@@ -37,7 +54,7 @@ void Tile::AddAdjacentTile(Tile* tile)
     adjacentTiles.push_back(tile);
 }
 
-int Tile::GetAdjacentMinesCount()
+int Tile::GetAdjacentMinesCount() const
 {
     return adjacentMinesCount;
 }
@@ -47,36 +64,8 @@ void Tile::SetAsMine()
     adjacentMinesCount = -1;
 }
 
-void Tile::RevealTile()
-{
-    if (isRevealed)
-    {
-        return;
-    }
-
-    isRevealed = true;
-
-    sprite.setTexture(tileDownTexture);
-
-    if (adjacentMinesCount > 0)
-    {
-        text.setString(std::to_string(adjacentMinesCount));
-        return;
-    }
-
-    for (Tile* tile : adjacentTiles)
-    {
-        tile->RevealTile();
-    }
-}
-
-void Tile::Draw(sf::RenderWindow& window)
+void Tile::Draw(sf::RenderWindow& window) const
 {
     window.draw(sprite);
     window.draw(text);
-}
-
-bool Tile::IsMouseOver(const sf::Vector2f& mousePos)
-{
-    return sprite.getGlobalBounds().contains(mousePos);
 }

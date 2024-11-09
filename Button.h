@@ -3,14 +3,15 @@
 #include <functional>
 class Button
 {
-private:
+protected:
 	sf::Sprite sprite;
 	sf::Texture texture;
 public:
 	Button(float, float, sf::Texture&);
 	bool IsPressed(const sf::Vector2f&);
-	void Draw(sf::RenderWindow&);
+	virtual void Draw(sf::RenderWindow&) const;
 	void SetOnClick(const std::function<void()>&);
 	std::function<void()> Click;
+	virtual ~Button();
 };
 

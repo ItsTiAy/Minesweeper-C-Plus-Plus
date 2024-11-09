@@ -1,15 +1,12 @@
 #include "WelcomeWindow.h"
-#include "GameWindow.h"
-#include <iostream>
-#include <string>
-#include <SFML/Graphics.hpp>
 
 WelcomeWindow::WelcomeWindow()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Minesweeper", sf::Style::Close);
+    std::cout << "Welcome Window" << std::endl;
 
-    sf::Font font;
-    font.loadFromFile("arial.ttf");
+    sf::RenderWindow window(sf::VideoMode((ResourceManager::GetColumns() * 32.f), (ResourceManager::GetRows() * 32.f) + 100.f), "Minesweeper", sf::Style::Close);
+
+    sf::Font font = ResourceManager::GetFont("arial.ttf");
 
     sf::Text welcomeText("WELCOME TO MINESWEEPER!", font, 24);
     welcomeText.setStyle(sf::Text::Underlined | sf::Text::Bold);
@@ -83,6 +80,5 @@ void WelcomeWindow::SetTextPosition(sf::Text& text, float x, float y)
 {
     sf::FloatRect textRect = text.getLocalBounds();
     text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-    std::cout << text.getOrigin().x << std::endl;
     text.setPosition(sf::Vector2f(x, y));
 }
