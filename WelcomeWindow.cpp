@@ -11,7 +11,7 @@ WelcomeWindow::WelcomeWindow()
     sf::Font font;
     font.loadFromFile("arial.ttf");
 
-    sf::Text welcomeText("WELCOME TO MINESWEEPER", font, 24);
+    sf::Text welcomeText("WELCOME TO MINESWEEPER!", font, 24);
     welcomeText.setStyle(sf::Text::Underlined | sf::Text::Bold);
     welcomeText.setFillColor(sf::Color::White);
 
