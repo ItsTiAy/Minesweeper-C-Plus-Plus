@@ -11,9 +11,14 @@ bool Button::IsPressed(const sf::Vector2f& mousePos)
 	return sprite.getGlobalBounds().contains(mousePos);
 }
 
-void Button::SetOnClick(const std::function<void()>& handler)
+void Button::SetOnClick(const std::function<bool()>& handler)
 {
 	Click = handler;
+}
+
+void Button::ChangeTexture(sf::Texture& newTexture)
+{
+	sprite.setTexture(newTexture);
 }
 
 void Button::Draw(sf::RenderWindow& window) const

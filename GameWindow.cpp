@@ -14,32 +14,48 @@ GameWindow::GameWindow()
 
     Button faceButton(((columns / 2.f) * 32) - 32.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("face_happy.png"));
     Button debugButton((columns * 32) - 304.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("debug.png"));
-    Button playPauseButton((columns * 32) - 240.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("play.png"));
+    Button playPauseButton((columns * 32) - 240.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("pause.png"));
     Button leaderboardButton((columns * 32) - 176.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("leaderboard.png"));
 
-    faceButton.SetOnClick([]() 
+    faceButton.SetOnClick([]() -> bool
     {
         std::cout << "Face Button" << std::endl;
+        return true;
     });
 
-    debugButton.SetOnClick([]()
+    debugButton.SetOnClick([]() -> bool
     {
         std::cout << "Debug Button" << std::endl;
+        return true;
     });
 
-    playPauseButton.SetOnClick([]()
+    playPauseButton.SetOnClick([&]() -> bool
     {
         std::cout << "Play Pause Button" << std::endl;
+
+        if (ResourceManager::GetState() == ResourceManager::GameState::Paused)
+        {
+            ResourceManager::SetState(ResourceManager::GameState::Playing);
+            playPauseButton.ChangeTexture(ResourceManager::GetTexture("pause.png"));
+        }
+        else
+        {
+            ResourceManager::SetState(ResourceManager::GameState::Paused);
+            playPauseButton.ChangeTexture(ResourceManager::GetTexture("play.png"));
+        }
+
+        return true;
     });
 
     bool leaderboardOpen = false;
 
-    leaderboardButton.SetOnClick([&]()
+    leaderboardButton.SetOnClick([&]() -> bool
     {
         std::cout << "Leaderboard Button" << std::endl;
         leaderboardOpen = true;
         LeaderboardWindow leaderboardWindow;
         leaderboardOpen = false;
+        return true;
     });
 
     GenerateGrid(columns, rows, mines);
@@ -66,11 +82,14 @@ GameWindow::GameWindow()
                         {
                             if (event.mouseButton.button == sf::Mouse::Left)
                             {
-                                tiles[j][i] -> Click();
+                                if (!tiles[j][i] -> Click())
+                                {
+                                    std::cout << "Mine" << std::endl;
+                                }
                             }
                             else if (event.mouseButton.button == sf::Mouse::Right)
                             {
-                                //tiles[j][i] -> 
+                                tiles[j][i] -> ToggleFlagged();
                             }
                         }
                     }
@@ -185,6 +204,17 @@ void GameWindow::GenerateGrid(int columns, int rows, int mines)
                     }
                 }
             }
+        }
+    }
+}
+
+void GameWindow::PauseGame()
+{
+    for (std::vector<Tile*> row : tiles)
+    {
+        for (Tile* tile : row)
+        {
+            
         }
     }
 }

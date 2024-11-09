@@ -14,6 +14,7 @@ private:
     std::vector<Tile*> adjacentTiles;
     std::string name;
     sf::Text text;
+    sf::Sprite pausedSprite;
 public:
     Tile(float, float, sf::Texture&);
     void IncreaseAdjacentMinesCount();
@@ -22,5 +23,6 @@ public:
     int GetAdjacentMinesCount() const;
     void Draw(sf::RenderWindow& window) const override;
     std::string GetName();
+    void ToggleFlagged();
 };
 

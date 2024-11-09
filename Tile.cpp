@@ -5,6 +5,9 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
     sprite.setTexture(tileUpTexture);
     sprite.setPosition(x, y);
 
+    pausedSprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
+    pausedSprite.setPosition(x, y);
+
     text.setFont(ResourceManager::GetFont("arial.ttf"));
     text.setFillColor(sf::Color::Black);
     text.setCharacterSize(20);
@@ -15,11 +18,11 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
 
     name = "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
 
-    Click = [&]()
+    Click = [&]() -> bool
     {
         if (isRevealed)
         {
-            return;
+            return true;
         }
 
         isRevealed = true;
@@ -29,13 +32,20 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
         if (adjacentMinesCount > 0)
         {
             text.setString(std::to_string(adjacentMinesCount));
-            return;
+            return true;
+        }
+        
+        if (adjacentMinesCount == -1)
+        {
+            return false;
         }
 
         for (Tile* tile : adjacentTiles)
         {
             tile -> Click();
         }
+        
+        return true;
     };
 }
 
@@ -66,6 +76,18 @@ void Tile::SetAsMine()
 
 void Tile::Draw(sf::RenderWindow& window) const
 {
-    window.draw(sprite);
-    window.draw(text);
+    if (ResourceManager::GetState() == ResourceManager::GameState::Playing)
+    {
+        window.draw(sprite);
+        window.draw(text);
+    }
+    else
+    {
+        window.draw(pausedSprite);
+    }
+}
+
+void Tile::ToggleFlagged()
+{
+    isFlagged = !isFlagged;
 }

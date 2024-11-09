@@ -17,4 +17,5 @@ private:
 public:
 	GameWindow();
 	void GenerateGrid(int, int, int);
+	void PauseGame();
 };
