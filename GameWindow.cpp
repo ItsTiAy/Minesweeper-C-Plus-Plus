@@ -17,15 +17,21 @@ GameWindow::GameWindow()
     Button playPauseButton((columns * 32) - 240.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("pause.png"));
     Button leaderboardButton((columns * 32) - 176.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("leaderboard.png"));
 
-    faceButton.SetOnClick([]() -> bool
+    faceButton.SetOnClick([&]() -> bool
     {
         std::cout << "Face Button" << std::endl;
+
+        ResetGame();
+
         return true;
     });
 
-    debugButton.SetOnClick([]() -> bool
+    debugButton.SetOnClick([&]() -> bool
     {
         std::cout << "Debug Button" << std::endl;
+
+        GameManager::ToggleDebug();
+
         return true;
     });
 
@@ -33,28 +39,29 @@ GameWindow::GameWindow()
     {
         std::cout << "Play Pause Button" << std::endl;
 
-        if (ResourceManager::GetState() == ResourceManager::GameState::Paused)
+        if (GameManager::GetState() == GameManager::GameState::Paused)
         {
-            ResourceManager::SetState(ResourceManager::GameState::Playing);
+            GameManager::SetState(GameManager::GameState::Playing);
             playPauseButton.ChangeTexture(ResourceManager::GetTexture("pause.png"));
         }
         else
         {
-            ResourceManager::SetState(ResourceManager::GameState::Paused);
+            GameManager::SetState(GameManager::GameState::Paused);
             playPauseButton.ChangeTexture(ResourceManager::GetTexture("play.png"));
         }
 
         return true;
     });
 
-    bool leaderboardOpen = false;
-
     leaderboardButton.SetOnClick([&]() -> bool
     {
         std::cout << "Leaderboard Button" << std::endl;
-        leaderboardOpen = true;
-        LeaderboardWindow leaderboardWindow;
-        leaderboardOpen = false;
+        GameManager::GameState previousState = GameManager::GetState();
+        GameManager::SetState(GameManager::GameState::LeaderboardOpen);
+
+        LeaderboardWindow leaderboardWindow; //Need fix, stops gamewindow doing anything
+
+        GameManager::SetState(previousState);
         return true;
     });
 
@@ -72,19 +79,30 @@ GameWindow::GameWindow()
                 window.close();
             }
 
-            if (event.type == sf::Event::MouseButtonReleased)
+            if (event.type == sf::Event::MouseButtonReleased && interactable)
             {
                 for (int i = 0; i < rows; i++)
                 {
                     for (int j = 0; j < columns; j++)
                     {
-                        if (tiles[j][i] -> IsPressed(mousePos))
+                        if (tiles[j][i] -> IsPressed(mousePos) && !GameManager::IsGameOver() && GameManager::GetState() != GameManager::GameState::Paused)
                         {
                             if (event.mouseButton.button == sf::Mouse::Left)
                             {
                                 if (!tiles[j][i] -> Click())
                                 {
-                                    std::cout << "Mine" << std::endl;
+                                    std::cout << "Game Lose" << std::endl;
+                                    faceButton.ChangeTexture(ResourceManager::GetTexture("face_lose.png"));
+                                    GameManager::SetState(GameManager::GameState::Lose);
+                                }
+                                else
+                                {
+                                    if ((columns * rows) - mines == GameManager::GetNumTilesRevealed())
+                                    {
+                                        std::cout << "Game Win" << std::endl;
+                                        faceButton.ChangeTexture(ResourceManager::GetTexture("face_win.png"));
+                                        GameManager::SetState(GameManager::GameState::Win);
+                                    }
                                 }
                             }
                             else if (event.mouseButton.button == sf::Mouse::Right)
@@ -102,17 +120,17 @@ GameWindow::GameWindow()
                         faceButton.Click();
                     }
 
-                    if (debugButton.IsPressed(mousePos))
+                    if (debugButton.IsPressed(mousePos) && !GameManager::IsGameOver())
                     {
                         debugButton.Click();
                     }
 
-                    if (playPauseButton.IsPressed(mousePos))
+                    if (playPauseButton.IsPressed(mousePos) && !GameManager::IsGameOver())
                     {
                         playPauseButton.Click();
                     }
 
-                    if (leaderboardButton.IsPressed(mousePos))
+                    if (leaderboardButton.IsPressed(mousePos) && !GameManager::IsGameOver())
                     {
                         leaderboardButton.Click();
                     }
@@ -208,13 +226,24 @@ void GameWindow::GenerateGrid(int columns, int rows, int mines)
     }
 }
 
-void GameWindow::PauseGame()
+void GameWindow::ResetGame()
 {
-    for (std::vector<Tile*> row : tiles)
+    int columns = ResourceManager::GetColumns();
+    int rows = ResourceManager::GetRows();
+    int mines = ResourceManager::GetMines();
+
+    for (int i = 0; i < rows; i++)
     {
-        for (Tile* tile : row)
+        for (int j = 0; j < columns; j++)
         {
-            
+            delete tiles[j][i];
         }
     }
+
+    tiles.clear();
+    tiles = std::vector<std::vector<Tile*>>(columns, std::vector<Tile*>(rows, nullptr));
+
+    GenerateGrid(columns, rows, mines);
+
+    GameManager::SetState(GameManager::GameState::Playing);
 }

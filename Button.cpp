@@ -21,7 +21,7 @@ void Button::ChangeTexture(sf::Texture& newTexture)
 	sprite.setTexture(newTexture);
 }
 
-void Button::Draw(sf::RenderWindow& window) const
+void Button::Draw(sf::RenderWindow& window)
 {
     window.draw(sprite);
 }

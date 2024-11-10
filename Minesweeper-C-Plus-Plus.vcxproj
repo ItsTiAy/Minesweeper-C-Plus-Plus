@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameWindow.cpp" />
     <ClCompile Include="LeaderboardWindow.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -149,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameWindow.h" />
     <ClInclude Include="LeaderboardWindow.h" />
     <ClInclude Include="ResourceManager.h" />

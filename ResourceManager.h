@@ -8,7 +8,6 @@
 class ResourceManager
 {
 public:
-	enum GameState {Playing, Paused};
 	static bool LoadTexture(const std::string&);
 	static bool LoadFont(const std::string&);
 	static bool LoadConfig();
@@ -17,8 +16,6 @@ public:
 	static int GetColumns();
 	static int GetRows();
 	static int GetMines();
-	static void SetState(GameState);
-	static GameState GetState();
 
 private:
 	static std::unordered_map<std::string, sf::Texture> textures;
@@ -26,6 +23,5 @@ private:
 	static int columns;
 	static int rows;
 	static int mines;
-	static GameState state;
 };
 

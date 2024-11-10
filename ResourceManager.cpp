@@ -5,7 +5,7 @@ std::unordered_map<std::string, sf::Font> ResourceManager::fonts;
 int ResourceManager::columns;
 int ResourceManager::rows;
 int ResourceManager::mines;
-ResourceManager::GameState ResourceManager::state;
+
 
 bool ResourceManager::LoadTexture(const std::string& fileName)
 {
@@ -102,12 +102,3 @@ int ResourceManager::GetMines()
     return mines;
 }
 
-void ResourceManager::SetState(GameState newState)
-{
-    state = newState;
-}
-
-ResourceManager::GameState ResourceManager::GetState()
-{
-    return state;
-}

@@ -8,15 +8,13 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
     pausedSprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
     pausedSprite.setPosition(x, y);
 
-    text.setFont(ResourceManager::GetFont("arial.ttf"));
-    text.setFillColor(sf::Color::Black);
-    text.setCharacterSize(20);
+    flagSprite.setTexture(ResourceManager::GetTexture("flag.png"));
+    flagSprite.setPosition(x, y);
 
-    sf::FloatRect textRect = text.getLocalBounds();
-    text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-    text.setPosition(sf::Vector2f(x + 8, y + 8));
+    mineSprite.setTexture(ResourceManager::GetTexture("mine.png"));
+    mineSprite.setPosition(x, y);
 
-    name = "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
+    numberSprite.setPosition(x, y);
 
     Click = [&]() -> bool
     {
@@ -25,13 +23,15 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
             return true;
         }
 
+        GameManager::IncreaseNumTilesRevealed();
+
         isRevealed = true;
 
         sprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
 
         if (adjacentMinesCount > 0)
         {
-            text.setString(std::to_string(adjacentMinesCount));
+            numberSprite.setTexture(ResourceManager::GetTexture("number_" + std::to_string(adjacentMinesCount) + ".png"));
             return true;
         }
         
@@ -47,11 +47,6 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
         
         return true;
     };
-}
-
-std::string Tile::GetName()
-{
-    return name;
 }
 
 void Tile::IncreaseAdjacentMinesCount()
@@ -74,20 +69,47 @@ void Tile::SetAsMine()
     adjacentMinesCount = -1;
 }
 
-void Tile::Draw(sf::RenderWindow& window) const
+void Tile::Draw(sf::RenderWindow& window)
 {
-    if (ResourceManager::GetState() == ResourceManager::GameState::Playing)
+    if (GameManager::GetState() == GameManager::GameState::Paused || GameManager::GetState() == GameManager::GameState::LeaderboardOpen)
     {
-        window.draw(sprite);
-        window.draw(text);
+        window.draw(pausedSprite);
     }
     else
     {
-        window.draw(pausedSprite);
+        window.draw(sprite);
+        window.draw(numberSprite);
+
+        if (isFlagged)
+        {
+            window.draw(flagSprite);
+        }
+
+        if (adjacentMinesCount == -1 && GameManager::DebugOn())
+        {
+            window.draw(mineSprite);
+        }
+    }
+
+    if (GameManager::GetState() == GameManager::GameState::Lose)
+    {
+        if (adjacentMinesCount == -1)
+        {
+            window.draw(mineSprite);
+            sprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
+            isRevealed = true;
+        }
     }
 }
 
 void Tile::ToggleFlagged()
 {
-    isFlagged = !isFlagged;
+    if (!isRevealed)
+    {
+        isFlagged = !isFlagged;
+
+        isFlagged ? GameManager::DecreaseFlagsRemaining() : GameManager::IncreaseFlagsRemaining();
+
+        std::cout << GameManager::GetNumTilesFlagged() << std::endl;
+    }
 }

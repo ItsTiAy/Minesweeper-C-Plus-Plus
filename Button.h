@@ -9,7 +9,7 @@ protected:
 public:
 	Button(float, float, sf::Texture&);
 	bool IsPressed(const sf::Vector2f&);
-	virtual void Draw(sf::RenderWindow&) const;
+	virtual void Draw(sf::RenderWindow&);
 	void SetOnClick(const std::function<bool()>&);
 	std::function<bool()> Click;
 	void ChangeTexture(sf::Texture&);

@@ -4,7 +4,7 @@ WelcomeWindow::WelcomeWindow()
 {
     std::cout << "Welcome Window" << std::endl;
 
-    sf::RenderWindow window(sf::VideoMode((ResourceManager::GetColumns() * 32.f), (ResourceManager::GetRows() * 32.f) + 100.f), "Minesweeper", sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode((ResourceManager::GetColumns() * 32), (ResourceManager::GetRows() * 32) + 100), "Minesweeper", sf::Style::Close);
 
     sf::Font font = ResourceManager::GetFont("arial.ttf");
 
