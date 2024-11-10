@@ -18,6 +18,7 @@ int main()
     ResourceManager::LoadTexture("tile_up.png");
     ResourceManager::LoadTexture("tile_down.png");
     ResourceManager::LoadTexture("mine.png");
+    ResourceManager::LoadTexture("digits.png");
 
     for (int i = 0; i < 8; i++)
     {

@@ -43,11 +43,13 @@ GameWindow::GameWindow()
         {
             GameManager::SetState(GameManager::GameState::Playing);
             playPauseButton.ChangeTexture(ResourceManager::GetTexture("pause.png"));
+            GameManager::ResumeTimer();
         }
         else
         {
             GameManager::SetState(GameManager::GameState::Paused);
             playPauseButton.ChangeTexture(ResourceManager::GetTexture("play.png"));
+            GameManager::PauseTimer();
         }
 
         return true;
@@ -65,13 +67,38 @@ GameWindow::GameWindow()
         return true;
     });
 
+    sf::Sprite timerMinsTens, timerMinsUnits, timerSecondsTens, timerSecondsUnits;
+
+    timerMinsTens.setTexture(ResourceManager::GetTexture("digits.png"));
+    timerMinsUnits.setTexture(ResourceManager::GetTexture("digits.png"));;
+    timerSecondsTens.setTexture(ResourceManager::GetTexture("digits.png"));;
+    timerSecondsUnits.setTexture(ResourceManager::GetTexture("digits.png"));;
+
+    timerMinsTens.setPosition((columns * 32) - 97, 32 * (rows + 0.5f) + 16);
+    timerMinsUnits.setPosition((columns * 32) - 76, 32 * (rows + 0.5f) + 16);
+    timerSecondsTens.setPosition((columns * 32) - 54, 32 * (rows + 0.5f) + 16);
+    timerSecondsUnits.setPosition((columns * 32) - 33, 32 * (rows + 0.5f) + 16);
+
+    int timeMins;
+    int timeSeconds;
+
     GenerateGrid(columns, rows, mines);
+
+    GameManager::ResetTimer();
 
     while (window.isOpen())
     {
-        sf::Vector2f mousePos(sf::Mouse::getPosition(window));
+        timeMins = GameManager::GetTime() / 60;
+        timeSeconds = GameManager::GetTime() % 60;
 
+        timerMinsTens.setTextureRect(sf::IntRect(21 * (timeMins / 10), 0, 21, 32));
+        timerMinsUnits.setTextureRect(sf::IntRect(21 * (timeMins % 10), 0, 21, 32));
+        timerSecondsTens.setTextureRect(sf::IntRect(21 * (timeSeconds / 10), 0, 21, 32));
+        timerSecondsUnits.setTextureRect(sf::IntRect(21 * (timeSeconds % 10), 0, 21, 32));
+
+        sf::Vector2f mousePos(sf::Mouse::getPosition(window));
         sf::Event event;
+
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -152,6 +179,11 @@ GameWindow::GameWindow()
         debugButton.Draw(window);
         playPauseButton.Draw(window);
         leaderboardButton.Draw(window);
+
+        window.draw(timerMinsTens);
+        window.draw(timerMinsUnits);
+        window.draw(timerSecondsTens);
+        window.draw(timerSecondsUnits);
 
         window.display();
     }
@@ -246,4 +278,6 @@ void GameWindow::ResetGame()
     GenerateGrid(columns, rows, mines);
 
     GameManager::SetState(GameManager::GameState::Playing);
+
+    GameManager::ResetTimer();
 }
