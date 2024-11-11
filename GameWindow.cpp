@@ -9,6 +9,8 @@ GameWindow::GameWindow()
     int mines = ResourceManager::GetMines();
 
     sf::RenderWindow window(sf::VideoMode((columns * 32.f), (rows * 32.f) + 100.f), "Minesweeper", sf::Style::Close);
+    sf::RectangleShape overlay(sf::Vector2f(window.getSize().x, window.getSize().y));
+    overlay.setFillColor(sf::Color(0, 0, 0, 150));
 
     tiles = std::vector<std::vector<Tile*>>(columns, std::vector<Tile*>(rows, nullptr));
 
@@ -41,15 +43,15 @@ GameWindow::GameWindow()
 
         if (GameManager::GetState() == GameManager::GameState::Paused)
         {
+            GameManager::ResumeTimer();
             GameManager::SetState(GameManager::GameState::Playing);
             playPauseButton.ChangeTexture(ResourceManager::GetTexture("pause.png"));
-            GameManager::ResumeTimer();
         }
         else
         {
+            GameManager::PauseTimer();
             GameManager::SetState(GameManager::GameState::Paused);
             playPauseButton.ChangeTexture(ResourceManager::GetTexture("play.png"));
-            GameManager::PauseTimer();
         }
 
         return true;
@@ -58,29 +60,38 @@ GameWindow::GameWindow()
     leaderboardButton.SetOnClick([&]() -> bool
     {
         std::cout << "Leaderboard Button" << std::endl;
-        GameManager::GameState previousState = GameManager::GetState();
+        GameManager::PauseTimer();
+        GameManager::SetPreviousState(GameManager::GetState());
         GameManager::SetState(GameManager::GameState::LeaderboardOpen);
-
-        LeaderboardWindow leaderboardWindow; //Need fix, stops gamewindow doing anything
-
-        GameManager::SetState(previousState);
         return true;
     });
 
-    sf::Sprite timerMinsTens, timerMinsUnits, timerSecondsTens, timerSecondsUnits;
+    sf::Sprite timerMinsTens, timerMinsUnits, timerSecondsTens, timerSecondsUnits, counterNegative, counterHundreds, counterTens, counterUnits;
 
     timerMinsTens.setTexture(ResourceManager::GetTexture("digits.png"));
-    timerMinsUnits.setTexture(ResourceManager::GetTexture("digits.png"));;
-    timerSecondsTens.setTexture(ResourceManager::GetTexture("digits.png"));;
-    timerSecondsUnits.setTexture(ResourceManager::GetTexture("digits.png"));;
+    timerMinsUnits.setTexture(ResourceManager::GetTexture("digits.png"));
+    timerSecondsTens.setTexture(ResourceManager::GetTexture("digits.png"));
+    timerSecondsUnits.setTexture(ResourceManager::GetTexture("digits.png"));
+
+    counterNegative.setTexture(ResourceManager::GetTexture("digits.png"));
+    counterHundreds.setTexture(ResourceManager::GetTexture("digits.png"));
+    counterTens.setTexture(ResourceManager::GetTexture("digits.png"));
+    counterUnits.setTexture(ResourceManager::GetTexture("digits.png"));
 
     timerMinsTens.setPosition((columns * 32) - 97, 32 * (rows + 0.5f) + 16);
     timerMinsUnits.setPosition((columns * 32) - 76, 32 * (rows + 0.5f) + 16);
     timerSecondsTens.setPosition((columns * 32) - 54, 32 * (rows + 0.5f) + 16);
     timerSecondsUnits.setPosition((columns * 32) - 33, 32 * (rows + 0.5f) + 16);
 
-    int timeMins;
-    int timeSeconds;
+    counterNegative.setPosition(12, 32 * (rows + 0.5f) + 16);
+    counterHundreds.setPosition(33, 32 * (rows + 0.5f) + 16);
+    counterTens.setPosition(54, 32 * (rows + 0.5f) + 16);
+    counterUnits.setPosition(75, 32 * (rows + 0.5f) + 16);
+
+    int timeMins = 0;
+    int timeSeconds = 0;
+
+    int counter = 0;
 
     GenerateGrid(columns, rows, mines);
 
@@ -88,78 +99,95 @@ GameWindow::GameWindow()
 
     while (window.isOpen())
     {
-        timeMins = GameManager::GetTime() / 60;
-        timeSeconds = GameManager::GetTime() % 60;
-
-        timerMinsTens.setTextureRect(sf::IntRect(21 * (timeMins / 10), 0, 21, 32));
-        timerMinsUnits.setTextureRect(sf::IntRect(21 * (timeMins % 10), 0, 21, 32));
-        timerSecondsTens.setTextureRect(sf::IntRect(21 * (timeSeconds / 10), 0, 21, 32));
-        timerSecondsUnits.setTextureRect(sf::IntRect(21 * (timeSeconds % 10), 0, 21, 32));
-
-        sf::Vector2f mousePos(sf::Mouse::getPosition(window));
-        sf::Event event;
-
-        while (window.pollEvent(event))
+        if (GameManager::GetState() == GameManager::GameState::LeaderboardOpen)
         {
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }
+            leaderboardWindow.PollWindow();
 
-            if (event.type == sf::Event::MouseButtonReleased && interactable)
+
+            //GameManager::SetState(GameManager::GetPreviousState());
+        }
+        else
+        {
+            timeMins = GameManager::GetTime() / 60;
+            timeSeconds = GameManager::GetTime() % 60;
+
+            counter = GameManager::GetNumTilesFlagged();
+
+            timerMinsTens.setTextureRect(sf::IntRect(21 * (timeMins / 10), 0, 21, 32));
+            timerMinsUnits.setTextureRect(sf::IntRect(21 * (timeMins % 10), 0, 21, 32));
+            timerSecondsTens.setTextureRect(sf::IntRect(21 * (timeSeconds / 10), 0, 21, 32));
+            timerSecondsUnits.setTextureRect(sf::IntRect(21 * (timeSeconds % 10), 0, 21, 32));
+
+            counterNegative.setTextureRect(sf::IntRect(210, 0, 21, 32));
+            counterHundreds.setTextureRect(sf::IntRect(21 * (std::abs(counter) / 100), 0, 21, 32));
+            counterTens.setTextureRect(sf::IntRect(21 * (std::abs(counter) / 10), 0, 21, 32));
+            counterUnits.setTextureRect(sf::IntRect(21 * (std::abs(counter) % 10), 0, 21, 32));
+
+            sf::Vector2f mousePos(sf::Mouse::getPosition(window));
+            sf::Event event;
+
+            while (window.pollEvent(event))
             {
-                for (int i = 0; i < rows; i++)
+                if (event.type == sf::Event::Closed)
                 {
-                    for (int j = 0; j < columns; j++)
+                    window.close();
+                }
+
+                if (event.type == sf::Event::MouseButtonReleased)
+                {
+                    for (int i = 0; i < rows; i++)
                     {
-                        if (tiles[j][i] -> IsPressed(mousePos) && !GameManager::IsGameOver() && GameManager::GetState() != GameManager::GameState::Paused)
+                        for (int j = 0; j < columns; j++)
                         {
-                            if (event.mouseButton.button == sf::Mouse::Left)
+                            if (tiles[j][i]->IsPressed(mousePos) && !GameManager::IsGameOver() && GameManager::GetState() != GameManager::GameState::Paused)
                             {
-                                if (!tiles[j][i] -> Click())
+                                if (event.mouseButton.button == sf::Mouse::Left)
                                 {
-                                    std::cout << "Game Lose" << std::endl;
-                                    faceButton.ChangeTexture(ResourceManager::GetTexture("face_lose.png"));
-                                    GameManager::SetState(GameManager::GameState::Lose);
-                                }
-                                else
-                                {
-                                    if ((columns * rows) - mines == GameManager::GetNumTilesRevealed())
+                                    if (!tiles[j][i]->Click())
                                     {
-                                        std::cout << "Game Win" << std::endl;
-                                        faceButton.ChangeTexture(ResourceManager::GetTexture("face_win.png"));
-                                        GameManager::SetState(GameManager::GameState::Win);
+                                        std::cout << "Game Lose" << std::endl;
+                                        faceButton.ChangeTexture(ResourceManager::GetTexture("face_lose.png"));
+                                        GameManager::SetState(GameManager::GameState::Lose);
+                                    }
+                                    else
+                                    {
+                                        if ((columns * rows) - mines == GameManager::GetNumTilesRevealed())
+                                        {
+                                            std::cout << "Game Win" << std::endl;
+                                            faceButton.ChangeTexture(ResourceManager::GetTexture("face_win.png"));
+                                            GameManager::SetState(GameManager::GameState::Win);
+                                        }
                                     }
                                 }
-                            }
-                            else if (event.mouseButton.button == sf::Mouse::Right)
-                            {
-                                tiles[j][i] -> ToggleFlagged();
+                                else if (event.mouseButton.button == sf::Mouse::Right)
+                                {
+                                    tiles[j][i]->ToggleFlagged();
+                                }
                             }
                         }
                     }
-                }
 
-                if (event.mouseButton.button == sf::Mouse::Left)
-                {
-                    if (faceButton.IsPressed(mousePos))
+                    if (event.mouseButton.button == sf::Mouse::Left)
                     {
-                        faceButton.Click();
-                    }
+                        if (faceButton.IsPressed(mousePos))
+                        {
+                            faceButton.Click();
+                        }
 
-                    if (debugButton.IsPressed(mousePos) && !GameManager::IsGameOver())
-                    {
-                        debugButton.Click();
-                    }
+                        if (debugButton.IsPressed(mousePos) && !GameManager::IsGameOver())
+                        {
+                            debugButton.Click();
+                        }
 
-                    if (playPauseButton.IsPressed(mousePos) && !GameManager::IsGameOver())
-                    {
-                        playPauseButton.Click();
-                    }
+                        if (playPauseButton.IsPressed(mousePos) && !GameManager::IsGameOver())
+                        {
+                            playPauseButton.Click();
+                        }
 
-                    if (leaderboardButton.IsPressed(mousePos) && !GameManager::IsGameOver())
-                    {
-                        leaderboardButton.Click();
+                        if (leaderboardButton.IsPressed(mousePos) && !GameManager::IsGameOver())
+                        {
+                            leaderboardButton.Click();
+                        }
                     }
                 }
             }
@@ -184,6 +212,20 @@ GameWindow::GameWindow()
         window.draw(timerMinsUnits);
         window.draw(timerSecondsTens);
         window.draw(timerSecondsUnits);
+
+        window.draw(counterHundreds);
+        window.draw(counterTens);
+        window.draw(counterUnits);
+
+        if (GameManager::GetState() == GameManager::GameState::LeaderboardOpen)
+        {
+            window.draw(overlay);
+        }
+
+        if (GameManager::GetNumTilesFlagged() < 0)
+        {
+            window.draw(counterNegative);
+        }
 
         window.display();
     }

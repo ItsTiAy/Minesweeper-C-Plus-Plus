@@ -8,6 +8,8 @@ public:
 	enum GameState { Playing, Paused, LeaderboardOpen, Win, Lose };
 	static void SetState(GameState);
 	static GameState GetState();
+	static void SetPreviousState(GameState);
+	static GameState GetPreviousState();
 	static bool DebugOn();
 	static void ToggleDebug();
 	static int GetNumTilesRevealed();
@@ -23,6 +25,7 @@ public:
 
 private:
 	static GameState state;
+	static GameState previousState;
 	static bool debug;
 	static int tilesRevealed;
 	static int flagsRemaining;

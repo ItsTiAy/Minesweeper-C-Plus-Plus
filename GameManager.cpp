@@ -1,6 +1,7 @@
 #include "GameManager.h"
 
 GameManager::GameState GameManager::state;
+GameManager::GameState GameManager::previousState;
 bool GameManager::debug = false;
 int GameManager::tilesRevealed = 0;
 int GameManager::flagsRemaining;
@@ -20,6 +21,16 @@ void GameManager::SetState(GameState newState)
 GameManager::GameState GameManager::GetState()
 {
     return state;
+}
+
+void GameManager::SetPreviousState(GameState newState)
+{
+    previousState = newState;
+}
+
+GameManager::GameState GameManager::GetPreviousState()
+{
+    return previousState;
 }
 
 bool GameManager::DebugOn()
@@ -64,13 +75,19 @@ bool GameManager::IsGameOver()
 
 void GameManager::ResumeTimer()
 {
-    start = std::chrono::high_resolution_clock::now();
+    if (state != GameState::Playing)
+    {
+        start = std::chrono::high_resolution_clock::now();
+    }
 }
 
 void GameManager::PauseTimer()
 {
-    auto now = std::chrono::high_resolution_clock::now();
-    time += std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+    if (state != GameState::Paused)
+    {
+        auto now = std::chrono::high_resolution_clock::now();
+        time += std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
+    }
 }
 
 void GameManager::ResetTimer()
