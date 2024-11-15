@@ -5,7 +5,7 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
     sprite.setTexture(tileUpTexture);
     sprite.setPosition(x, y);
 
-    pausedSprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
+    pausedSprite.setTexture(ResourceManager::GetTexture("tile_revealed.png"));
     pausedSprite.setPosition(x, y);
 
     flagSprite.setTexture(ResourceManager::GetTexture("flag.png"));
@@ -27,7 +27,7 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
 
         isRevealed = true;
 
-        sprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
+        sprite.setTexture(ResourceManager::GetTexture("tile_revealed.png"));
 
         if (adjacentMinesCount > 0)
         {
@@ -71,7 +71,9 @@ void Tile::SetAsMine()
 
 void Tile::Draw(sf::RenderWindow& window)
 {
-    if (GameManager::GetState() == GameManager::GameState::Paused || GameManager::GetState() == GameManager::GameState::LeaderboardOpen)
+    if ((GameManager::GetState() == GameManager::GameState::Paused || 
+         GameManager::GetState() == GameManager::GameState::LeaderboardOpen) &&
+         GameManager::GetPreviousState() != GameManager::GameState::Win)
     {
         window.draw(pausedSprite);
     }
@@ -96,7 +98,7 @@ void Tile::Draw(sf::RenderWindow& window)
         if (adjacentMinesCount == -1)
         {
             window.draw(mineSprite);
-            sprite.setTexture(ResourceManager::GetTexture("tile_down.png"));
+            sprite.setTexture(ResourceManager::GetTexture("tile_revealed.png"));
             isRevealed = true;
         }
     }

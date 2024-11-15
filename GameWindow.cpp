@@ -23,6 +23,7 @@ GameWindow::GameWindow()
     {
         std::cout << "Face Button" << std::endl;
 
+        faceButton.ChangeTexture(ResourceManager::GetTexture("face_happy.png"));
         ResetGame();
 
         return true;
@@ -60,9 +61,12 @@ GameWindow::GameWindow()
     leaderboardButton.SetOnClick([&]() -> bool
     {
         std::cout << "Leaderboard Button" << std::endl;
+
         GameManager::PauseTimer();
         GameManager::SetPreviousState(GameManager::GetState());
         GameManager::SetState(GameManager::GameState::LeaderboardOpen);
+        leaderboardWindow.OpenWindow();
+
         return true;
     });
 
@@ -102,9 +106,6 @@ GameWindow::GameWindow()
         if (GameManager::GetState() == GameManager::GameState::LeaderboardOpen)
         {
             leaderboardWindow.PollWindow();
-
-
-            //GameManager::SetState(GameManager::GetPreviousState());
         }
         else
         {
@@ -148,6 +149,7 @@ GameWindow::GameWindow()
                                         std::cout << "Game Lose" << std::endl;
                                         faceButton.ChangeTexture(ResourceManager::GetTexture("face_lose.png"));
                                         GameManager::SetState(GameManager::GameState::Lose);
+                                        GameManager::PauseTimer();
                                     }
                                     else
                                     {
@@ -155,13 +157,17 @@ GameWindow::GameWindow()
                                         {
                                             std::cout << "Game Win" << std::endl;
                                             faceButton.ChangeTexture(ResourceManager::GetTexture("face_win.png"));
-                                            GameManager::SetState(GameManager::GameState::Win);
+                                            leaderboardWindow.UpdateLeaderboard(GameManager::GetTime());
+                                            GameManager::PauseTimer();
+                                            GameManager::SetPreviousState(GameManager::GameState::Win);
+                                            GameManager::SetState(GameManager::GameState::LeaderboardOpen);
+                                            leaderboardWindow.OpenWindow();
                                         }
                                     }
                                 }
                                 else if (event.mouseButton.button == sf::Mouse::Right)
                                 {
-                                    tiles[j][i]->ToggleFlagged();
+                                    tiles[j][i] -> ToggleFlagged();
                                 }
                             }
                         }
@@ -245,7 +251,7 @@ void GameWindow::GenerateGrid(int columns, int rows, int mines)
     {
         for (int j = 0; j < columns; j++)
         {
-            tiles[j][i] = new Tile(j * 32.f, i * 32.f, ResourceManager::GetTexture("tile_up.png"));
+            tiles[j][i] = new Tile(j * 32.f, i * 32.f, ResourceManager::GetTexture("tile_hidden.png"));
         }
     }
 
@@ -319,7 +325,5 @@ void GameWindow::ResetGame()
 
     GenerateGrid(columns, rows, mines);
 
-    GameManager::SetState(GameManager::GameState::Playing);
-
-    GameManager::ResetTimer();
+    GameManager::ResetData();
 }

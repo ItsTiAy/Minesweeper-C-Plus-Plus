@@ -22,6 +22,8 @@ public:
 	static void PauseTimer();
 	static void ResetTimer();
 	static int GetTime();
+	static void SetTextPosition(sf::Text&, float, float);
+	static void ResetData();
 
 private:
 	static GameState state;

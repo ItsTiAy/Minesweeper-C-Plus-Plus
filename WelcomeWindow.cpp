@@ -6,25 +6,25 @@ WelcomeWindow::WelcomeWindow()
 
     sf::RenderWindow window(sf::VideoMode((ResourceManager::GetColumns() * 32), (ResourceManager::GetRows() * 32) + 100), "Minesweeper", sf::Style::Close);
 
-    sf::Font font = ResourceManager::GetFont("arial.ttf");
+    sf::Font font = ResourceManager::GetFont("font.ttf");
 
     sf::Text welcomeText("WELCOME TO MINESWEEPER!", font, 24);
     welcomeText.setStyle(sf::Text::Underlined | sf::Text::Bold);
     welcomeText.setFillColor(sf::Color::White);
 
-    SetTextPosition(welcomeText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 150.f);
+    GameManager::SetTextPosition(welcomeText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 150.f);
 
     sf::Text enterNameText("Enter your name:", font, 20);
     enterNameText.setStyle(sf::Text::Bold);
     enterNameText.setFillColor(sf::Color::White);
 
-    SetTextPosition(enterNameText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 75.f);
+    GameManager::SetTextPosition(enterNameText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 75.f);
 
     sf::Text inputText("|", font, 18);
     inputText.setStyle(sf::Text::Bold);
     inputText.setFillColor(sf::Color::Yellow);
 
-    SetTextPosition(inputText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 45.f);
+    GameManager::SetTextPosition(inputText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 45.f);
 
     std::string inputString = "";
 
@@ -58,11 +58,12 @@ WelcomeWindow::WelcomeWindow()
                 else if (event.text.unicode == '\r' && !inputString.empty())
                 {
                     window.close();
+                    ResourceManager::SetPlayerName(inputString);
                     GameWindow gameWindow;
                 }
 
                 inputText.setString(inputString + "|");
-                SetTextPosition(inputText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 45.f);
+                GameManager::SetTextPosition(inputText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 45.f);
             }
         }
 
@@ -74,11 +75,4 @@ WelcomeWindow::WelcomeWindow()
 
         window.display();
     }
-}
-
-void WelcomeWindow::SetTextPosition(sf::Text& text, float x, float y)
-{
-    sf::FloatRect textRect = text.getLocalBounds();
-    text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-    text.setPosition(sf::Vector2f(x, y));
 }

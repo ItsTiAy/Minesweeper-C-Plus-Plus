@@ -2,9 +2,11 @@
 
 std::unordered_map<std::string, sf::Texture> ResourceManager::textures;
 std::unordered_map<std::string, sf::Font> ResourceManager::fonts;
+std::vector<std::pair<std::string, std::string>> ResourceManager::scores;
 int ResourceManager::columns;
 int ResourceManager::rows;
 int ResourceManager::mines;
+std::string ResourceManager::playerName;
 
 
 bool ResourceManager::LoadTexture(const std::string& fileName)
@@ -100,5 +102,58 @@ int ResourceManager::GetRows()
 int ResourceManager::GetMines()
 {
     return mines;
+}
+
+bool ResourceManager::LoadScores()
+{
+    std::ifstream config("files/leaderboard.txt");
+    scores.clear();
+
+    std::string line;
+    std::string time;
+    std::string name;
+
+    for (int i = 0; i < 5; i++)
+    {
+        std::getline(config, line);
+
+        int delPos = line.find(",");
+
+        time = line.substr(0, delPos);
+        name = line.substr(delPos + 1);
+
+        scores.push_back(std::make_pair(time,name));
+    }
+
+    return true;
+}
+
+bool ResourceManager::WriteScores(std::vector<std::pair<std::string, std::string>> newScores)
+{
+    std::ofstream file("files/leaderboard.txt");
+
+    for (int i = 0; i < newScores.size(); i++)
+    {
+        file << newScores[i].first << "," << newScores[i].second << std::endl;
+    }
+
+    file.close();
+
+    return true;
+}
+
+std::vector<std::pair<std::string, std::string>> ResourceManager::GetScores()
+{
+    return scores;
+}
+
+std::string ResourceManager::GetPlayerName()
+{
+    return playerName;
+}
+
+void ResourceManager::SetPlayerName(std::string& name)
+{
+    playerName = name;
 }
 

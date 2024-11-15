@@ -98,7 +98,7 @@ void GameManager::ResetTimer()
 
 int GameManager::GetTime()
 { 
-    if (state != GameState::Paused)
+    if ((state != GameState::Paused) && !IsGameOver())
     {
         auto now = std::chrono::high_resolution_clock::now();
         return time + std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
@@ -107,4 +107,21 @@ int GameManager::GetTime()
     {
         return time;
     }
+}
+
+void GameManager::ResetData()
+{
+    tilesRevealed = 0;
+    flagsRemaining = ResourceManager::GetMines();
+    debug = false;
+
+    state = GameState::Playing;
+    ResetTimer();
+}
+
+void GameManager::SetTextPosition(sf::Text& text, float x, float y)
+{
+    sf::FloatRect textRect = text.getLocalBounds();
+    text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+    text.setPosition(sf::Vector2f(x, y));
 }

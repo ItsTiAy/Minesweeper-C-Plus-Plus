@@ -9,14 +9,15 @@
 int main()
 {
     ResourceManager::LoadConfig();
-    ResourceManager::LoadFont("arial.ttf");
+    ResourceManager::LoadScores();
+    ResourceManager::LoadFont("font.ttf");
     ResourceManager::LoadTexture("face_happy.png");
     ResourceManager::LoadTexture("debug.png");
     ResourceManager::LoadTexture("pause.png");
     ResourceManager::LoadTexture("play.png");
     ResourceManager::LoadTexture("leaderboard.png"); 
-    ResourceManager::LoadTexture("tile_up.png");
-    ResourceManager::LoadTexture("tile_down.png");
+    ResourceManager::LoadTexture("tile_hidden.png");
+    ResourceManager::LoadTexture("tile_revealed.png");
     ResourceManager::LoadTexture("mine.png");
     ResourceManager::LoadTexture("digits.png");
 
