@@ -9,6 +9,7 @@ GameWindow::GameWindow()
     int mines = ResourceManager::GetMines();
 
     sf::RenderWindow window(sf::VideoMode((columns * 32.f), (rows * 32.f) + 100.f), "Minesweeper", sf::Style::Close);
+    ResourceManager::SetIcon(window);
     sf::RectangleShape overlay(sf::Vector2f(window.getSize().x, window.getSize().y));
     overlay.setFillColor(sf::Color(0, 0, 0, 150));
 

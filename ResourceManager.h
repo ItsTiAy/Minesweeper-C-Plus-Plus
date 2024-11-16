@@ -24,6 +24,7 @@ public:
 	static std::vector<std::pair<std::string, std::string>> GetScores();
 	static std::string GetPlayerName();
 	static void SetPlayerName(std::string&);
+	static bool SetIcon(sf::RenderWindow&);
 
 private:
 	static std::unordered_map<std::string, sf::Texture> textures;

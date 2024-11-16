@@ -8,6 +8,15 @@ int ResourceManager::rows;
 int ResourceManager::mines;
 std::string ResourceManager::playerName;
 
+bool ResourceManager::SetIcon(sf::RenderWindow& window)
+{
+    sf::Image icon;
+    icon.loadFromFile("files/images/mine.png");
+    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
+    return true;
+}
+
 
 bool ResourceManager::LoadTexture(const std::string& fileName)
 {
@@ -113,10 +122,8 @@ bool ResourceManager::LoadScores()
     std::string time;
     std::string name;
 
-    for (int i = 0; i < 5; i++)
+    while (std::getline(config, line))
     {
-        std::getline(config, line);
-
         int delPos = line.find(",");
 
         time = line.substr(0, delPos);

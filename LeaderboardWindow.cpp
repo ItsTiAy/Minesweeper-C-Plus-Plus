@@ -29,9 +29,23 @@ void LeaderboardWindow::UpdateLeaderboard(int score)
 {
     std::vector<std::pair<std::string, std::string>> scores = ResourceManager::GetScores();
 
+    bool scoreAdded = false;
+
     int mins;
     int seconds;
     int total;
+
+    std::vector<std::pair<std::string, std::string>> scoresForFile(scores);
+    std::string playerName = ResourceManager::GetPlayerName();
+
+    std::ostringstream oss;
+
+    oss << std::setfill('0') << std::setw(2) << (score / 60) << ":";
+    oss << std::setfill('0') << std::setw(2) << (score % 60);
+
+    std::string time = oss.str();
+
+
 
     for (int i = 0; i < scores.size(); i++)
     {
@@ -43,21 +57,12 @@ void LeaderboardWindow::UpdateLeaderboard(int score)
 
         if (score <= total)
         {
-            std::vector<std::pair<std::string, std::string>> scoresForFile(scores);
-            std::string playerName = ResourceManager::GetPlayerName();
-
-            std::ostringstream oss;
-
-            oss << std::setfill('0') << std::setw(2) << (score / 60) << ":";
-            oss << std::setfill('0') << std::setw(2) << (score % 60);
-
-            std::string time = oss.str();
-
-            std::cout << score << std::endl;
-            std::cout << time << std::endl;
-
             scoresForFile.insert(scoresForFile.begin() + i, std::make_pair(time, playerName));
-            scoresForFile.pop_back();
+
+            if (scoresForFile.size() > 5)
+            {
+                scoresForFile.pop_back();
+            }
 
             ResourceManager::WriteScores(scoresForFile);
             ResourceManager::LoadScores();
@@ -65,11 +70,28 @@ void LeaderboardWindow::UpdateLeaderboard(int score)
             playerName += "*";
 
             scores.insert(scores.begin() + i, std::make_pair(time, playerName));
-            scores.pop_back();
 
+            if (scores.size() > 5)
+            {
+                scores.pop_back();
+            }
+
+            scoreAdded = true;
             break;
         }
     }
+
+    if (!scoreAdded && scores.size() < 5)
+    {
+        scoresForFile.push_back(std::make_pair(time, playerName));
+
+        ResourceManager::WriteScores(scoresForFile);
+        ResourceManager::LoadScores();
+
+        playerName += "*";
+
+        scores.push_back(std::make_pair(time, playerName));
+    }   
 
     std::string stringContent = "";
 
@@ -88,6 +110,7 @@ void LeaderboardWindow::UpdateLeaderboard(int score)
 void LeaderboardWindow::OpenWindow()
 {
     window.create(sf::VideoMode((ResourceManager::GetColumns() * 16.f), (ResourceManager::GetRows() * 16.f) + 50.f), "Minesweeper", sf::Style::Close);
+    ResourceManager::SetIcon(window);
     GameManager::SetTextPosition(leaderboardText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 120.f);;
     GameManager::SetTextPosition(content, window.getSize().x / 2.f, (window.getSize().y / 2.f) + 20.f);;
 }

@@ -5,6 +5,7 @@ WelcomeWindow::WelcomeWindow()
     std::cout << "Welcome Window" << std::endl;
 
     sf::RenderWindow window(sf::VideoMode((ResourceManager::GetColumns() * 32), (ResourceManager::GetRows() * 32) + 100), "Minesweeper", sf::Style::Close);
+    ResourceManager::SetIcon(window);
 
     sf::Font font = ResourceManager::GetFont("font.ttf");
 
@@ -44,10 +45,7 @@ WelcomeWindow::WelcomeWindow()
                 {
                     char letter = static_cast<char>(event.text.unicode);
 
-                    if (inputString.empty())
-                    {
-                        letter = std::toupper(letter);
-                    }
+                    letter = inputString.empty() ? std::toupper(letter) : std::tolower(letter);
 
                     inputString += letter;
                 }

@@ -1,5 +1,5 @@
+00:02,Jim
 00:04,Jim
-00:06,Jim
-00:06,Wack
-00:10,Wack
-00:26,Chicken
+00:04,Jim
+00:04,Jim
+00:05,Jim
