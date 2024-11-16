@@ -18,14 +18,18 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
 
     Click = [&]() -> bool
     {
+        static std::mutex mutex;
+
         if (isRevealed)
         {
             return true;
         }
 
-        GameManager::IncreaseNumTilesRevealed();
-
-        isRevealed = true;
+        {
+            std::lock_guard<std::mutex> lock(mutex);
+            isRevealed = true;
+            GameManager::IncreaseNumTilesRevealed();
+        }
 
         sprite.setTexture(ResourceManager::GetTexture("tile_revealed.png"));
 
@@ -40,9 +44,22 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
             return false;
         }
 
+        std::vector<std::future<void>> futures;
+
         for (Tile* tile : adjacentTiles)
         {
-            tile -> Click();
+            if (tile && !tile -> isRevealed)
+            {
+                futures.push_back(std::async(std::launch::async, [tile]()
+                {
+                    tile->Click();
+                }));
+            }
+        }
+
+        for (auto & future : futures)
+        {
+            future.get();
         }
         
         return true;

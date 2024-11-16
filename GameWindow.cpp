@@ -115,14 +115,14 @@ GameWindow::GameWindow()
 
             counter = GameManager::GetNumTilesFlagged();
 
-            timerMinsTens.setTextureRect(sf::IntRect(21 * (timeMins / 10), 0, 21, 32));
+            timerMinsTens.setTextureRect(sf::IntRect(21 * ((timeMins / 10) % 10), 0, 21, 32));
             timerMinsUnits.setTextureRect(sf::IntRect(21 * (timeMins % 10), 0, 21, 32));
-            timerSecondsTens.setTextureRect(sf::IntRect(21 * (timeSeconds / 10), 0, 21, 32));
+            timerSecondsTens.setTextureRect(sf::IntRect(21 * ((timeSeconds / 10) % 10), 0, 21, 32));
             timerSecondsUnits.setTextureRect(sf::IntRect(21 * (timeSeconds % 10), 0, 21, 32));
 
             counterNegative.setTextureRect(sf::IntRect(210, 0, 21, 32));
-            counterHundreds.setTextureRect(sf::IntRect(21 * (std::abs(counter) / 100), 0, 21, 32));
-            counterTens.setTextureRect(sf::IntRect(21 * (std::abs(counter) / 10), 0, 21, 32));
+            counterHundreds.setTextureRect(sf::IntRect(21 * ((std::abs(counter) / 100) % 10), 0, 21, 32));
+            counterTens.setTextureRect(sf::IntRect(21 * ((std::abs(counter) / 10) % 10), 0, 21, 32));
             counterUnits.setTextureRect(sf::IntRect(21 * (std::abs(counter) % 10), 0, 21, 32));
 
             sf::Vector2f mousePos(sf::Mouse::getPosition(window));

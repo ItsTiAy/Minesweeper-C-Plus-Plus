@@ -8,23 +8,20 @@ WelcomeWindow::WelcomeWindow()
     ResourceManager::SetIcon(window);
 
     sf::Font font = ResourceManager::GetFont("font.ttf");
-
+    
     sf::Text welcomeText("WELCOME TO MINESWEEPER!", font, 24);
     welcomeText.setStyle(sf::Text::Underlined | sf::Text::Bold);
     welcomeText.setFillColor(sf::Color::White);
-
     GameManager::SetTextPosition(welcomeText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 150.f);
 
     sf::Text enterNameText("Enter your name:", font, 20);
     enterNameText.setStyle(sf::Text::Bold);
     enterNameText.setFillColor(sf::Color::White);
-
     GameManager::SetTextPosition(enterNameText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 75.f);
 
     sf::Text inputText("|", font, 18);
     inputText.setStyle(sf::Text::Bold);
     inputText.setFillColor(sf::Color::Yellow);
-
     GameManager::SetTextPosition(inputText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 45.f);
 
     std::string inputString = "";

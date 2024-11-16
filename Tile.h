@@ -6,6 +6,9 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
+#include <thread>
+#include <mutex>
+#include <future>
 class Tile : public Button
 {
 private:
@@ -19,10 +22,10 @@ private:
     sf::Sprite mineSprite;
 public:
     Tile(float, float, sf::Texture&);
+    int GetAdjacentMinesCount() const;
     void IncreaseAdjacentMinesCount();
     void AddAdjacentTile(Tile*);
     void SetAsMine();
-    int GetAdjacentMinesCount() const;
     void Draw(sf::RenderWindow& window) override;
     void ToggleFlagged();
 };
