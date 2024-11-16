@@ -4,13 +4,12 @@
 class GameManager
 {
 public:
-	static void Initialize();
 	enum GameState { Playing, Paused, LeaderboardOpen, Win, Lose };
 	static void SetState(GameState);
 	static GameState GetState();
 	static void SetPreviousState(GameState);
 	static GameState GetPreviousState();
-	static bool DebugOn();
+	static bool IsDebugOn();
 	static void ToggleDebug();
 	static int GetNumTilesRevealed();
 	static void IncreaseNumTilesRevealed();

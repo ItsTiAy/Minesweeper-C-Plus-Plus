@@ -8,6 +8,7 @@ int ResourceManager::rows;
 int ResourceManager::mines;
 std::string ResourceManager::playerName;
 
+// Sets window icon
 bool ResourceManager::SetIcon(sf::RenderWindow& window)
 {
     sf::Image icon;
@@ -17,7 +18,7 @@ bool ResourceManager::SetIcon(sf::RenderWindow& window)
     return true;
 }
 
-
+// Loads texture with fileName
 bool ResourceManager::LoadTexture(const std::string& fileName)
 {
     if (textures.find(fileName) != textures.end())
@@ -36,6 +37,7 @@ bool ResourceManager::LoadTexture(const std::string& fileName)
     return true;
 }
 
+// Loads font with fileName
 bool ResourceManager::LoadFont(const std::string& fileName)
 {
     if (fonts.find(fileName) != fonts.end())
@@ -54,6 +56,7 @@ bool ResourceManager::LoadFont(const std::string& fileName)
     return true;
 }
 
+// Loads the data in the config file
 bool ResourceManager::LoadConfig()
 {
     std::ifstream config("files/config.cfg");
@@ -78,6 +81,7 @@ bool ResourceManager::LoadConfig()
     return true;
 }
 
+// Returns the texture with the name of fileName
 sf::Texture& ResourceManager::GetTexture(const std::string& fileName)
 {
     if (textures.find(fileName) == textures.end())
@@ -88,6 +92,7 @@ sf::Texture& ResourceManager::GetTexture(const std::string& fileName)
     return textures[fileName];
 }
 
+// Returns the font with the name of fileName
 sf::Font& ResourceManager::GetFont(const std::string& fileName)
 {
     if (fonts.find(fileName) == fonts.end())
@@ -98,21 +103,25 @@ sf::Font& ResourceManager::GetFont(const std::string& fileName)
     return fonts[fileName];
 }
 
+// Returns the number of columns on the grid
 int ResourceManager::GetColumns()
 {
     return columns;
 }
 
+// Returns the number of rows on the grid
 int ResourceManager::GetRows()
 {
     return rows;
 }
 
+// Returns the number of mines on the grid
 int ResourceManager::GetMines()
 {
     return mines;
 }
 
+// Loads the scores from the leaderboard file
 bool ResourceManager::LoadScores()
 {
     std::ifstream config("files/leaderboard.txt");
@@ -135,6 +144,7 @@ bool ResourceManager::LoadScores()
     return true;
 }
 
+// Writes new scores to the leaderboard file
 bool ResourceManager::WriteScores(std::vector<std::pair<std::string, std::string>> newScores)
 {
     std::ofstream file("files/leaderboard.txt");
@@ -149,16 +159,19 @@ bool ResourceManager::WriteScores(std::vector<std::pair<std::string, std::string
     return true;
 }
 
+// Returns the scores from the leaderboard file
 std::vector<std::pair<std::string, std::string>> ResourceManager::GetScores()
 {
     return scores;
 }
 
+// Returns the players name
 std::string ResourceManager::GetPlayerName()
 {
     return playerName;
 }
 
+// Sets the players name
 void ResourceManager::SetPlayerName(std::string& name)
 {
     playerName = name;

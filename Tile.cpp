@@ -2,6 +2,7 @@
 
 Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTexture)
 {
+    // Sets textures and positions
     sprite.setTexture(tileUpTexture);
     sprite.setPosition(x, y);
 
@@ -16,8 +17,10 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
 
     numberSprite.setPosition(x, y);
 
+    // For when a mine is clicked
     Click = [&]() -> bool
     {
+        // A mutex to ensure thread-safe access to shared state
         static std::mutex mutex;
 
         if (isRevealed)
@@ -44,12 +47,15 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
             return false;
         }
 
+        // Use multithreading to process all adjacent tiles in parallel
+        // Store futures representing asynchronous tasks
         std::vector<std::future<void>> futures;
 
         for (Tile* tile : adjacentTiles)
         {
             if (tile && !tile -> isRevealed)
             {
+                // Spawn a new asynchronous task to click the adjacent tile
                 futures.push_back(std::async(std::launch::async, [tile]()
                 {
                     tile->Click();
@@ -57,8 +63,10 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
             }
         }
 
+        // Wait for all asynchronous tasks to complete before proceeding
         for (auto & future : futures)
         {
+            // Synchronize each future, ensuring the task has completed
             future.get();
         }
         
@@ -66,34 +74,41 @@ Tile::Tile(float x, float y, sf::Texture& tileUpTexture) : Button(x, y, tileUpTe
     };
 }
 
+// Increased the adjacent mines count by 1
 void Tile::IncreaseAdjacentMinesCount()
 {
     adjacentMinesCount++;
 }
 
+// Adds a tile to the vector of adjacent tiles
 void Tile::AddAdjacentTile(Tile* tile)
 {
     adjacentTiles.push_back(tile);
 }
 
+// Returns the number of adjacent mines
 int Tile::GetAdjacentMinesCount() const
 {
     return adjacentMinesCount;
 }
 
+// Sets a tile as a mine by settings its adjacent mine count to -1
 void Tile::SetAsMine()
 {
     adjacentMinesCount = -1;
 }
 
+// Renders the tile on the window
 void Tile::Draw(sf::RenderWindow& window)
 {
+    // Draws the paused sprite
     if ((GameManager::GetState() == GameManager::GameState::Paused || 
          GameManager::GetState() == GameManager::GameState::LeaderboardOpen) &&
          GameManager::GetPreviousState() != GameManager::GameState::Win)
     {
         window.draw(pausedSprite);
     }
+    // If the game is not in a paused state
     else
     {
         window.draw(sprite);
@@ -104,12 +119,13 @@ void Tile::Draw(sf::RenderWindow& window)
             window.draw(flagSprite);
         }
 
-        if (adjacentMinesCount == -1 && GameManager::DebugOn())
+        if (adjacentMinesCount == -1 && GameManager::IsDebugOn())
         {
             window.draw(mineSprite);
         }
     }
 
+    // If the game has been lost
     if (GameManager::GetState() == GameManager::GameState::Lose)
     {
         if (adjacentMinesCount == -1)
@@ -121,6 +137,7 @@ void Tile::Draw(sf::RenderWindow& window)
     }
 }
 
+// Toggles the flag sprite on the tile
 void Tile::ToggleFlagged()
 {
     if (!isRevealed)

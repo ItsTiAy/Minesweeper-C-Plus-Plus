@@ -20,6 +20,7 @@ GameWindow::GameWindow()
     Button playPauseButton((columns * 32) - 240.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("pause.png"));
     Button leaderboardButton((columns * 32) - 176.f, 32.f * (rows + 0.5f), ResourceManager::GetTexture("leaderboard.png"));
 
+    // Face button - Resets the game
     faceButton.SetOnClick([&]() -> bool
     {
         std::cout << "Face Button" << std::endl;
@@ -30,6 +31,7 @@ GameWindow::GameWindow()
         return true;
     });
 
+    // Debug button - shows all mines on the board
     debugButton.SetOnClick([&]() -> bool
     {
         std::cout << "Debug Button" << std::endl;
@@ -39,6 +41,7 @@ GameWindow::GameWindow()
         return true;
     });
 
+    // Play/Pause button - pausing hides all tiles and stops timer, play puts tiles back and starts timer again
     playPauseButton.SetOnClick([&]() -> bool
     {
         std::cout << "Play Pause Button" << std::endl;
@@ -59,6 +62,7 @@ GameWindow::GameWindow()
         return true;
     });
 
+    // Leaderboard button - shows the leaderboard window and pauses the game
     leaderboardButton.SetOnClick([&]() -> bool
     {
         std::cout << "Leaderboard Button" << std::endl;
@@ -73,6 +77,7 @@ GameWindow::GameWindow()
 
     sf::Sprite timerMinsTens, timerMinsUnits, timerSecondsTens, timerSecondsUnits, counterNegative, counterHundreds, counterTens, counterUnits;
 
+    // Sets the texture for the timer and flag counter
     timerMinsTens.setTexture(ResourceManager::GetTexture("digits.png"));
     timerMinsUnits.setTexture(ResourceManager::GetTexture("digits.png"));
     timerSecondsTens.setTexture(ResourceManager::GetTexture("digits.png"));
@@ -83,11 +88,13 @@ GameWindow::GameWindow()
     counterTens.setTexture(ResourceManager::GetTexture("digits.png"));
     counterUnits.setTexture(ResourceManager::GetTexture("digits.png"));
 
+    // Sets the positions of the timer
     timerMinsTens.setPosition((columns * 32) - 97, 32 * (rows + 0.5f) + 16);
     timerMinsUnits.setPosition((columns * 32) - 76, 32 * (rows + 0.5f) + 16);
     timerSecondsTens.setPosition((columns * 32) - 54, 32 * (rows + 0.5f) + 16);
     timerSecondsUnits.setPosition((columns * 32) - 33, 32 * (rows + 0.5f) + 16);
 
+    // Sets the positions of the counter
     counterNegative.setPosition(12, 32 * (rows + 0.5f) + 16);
     counterHundreds.setPosition(33, 32 * (rows + 0.5f) + 16);
     counterTens.setPosition(54, 32 * (rows + 0.5f) + 16);
@@ -104,6 +111,7 @@ GameWindow::GameWindow()
 
     while (window.isOpen())
     {
+        // Only polls the leaderboard window if it is open
         if (GameManager::GetState() == GameManager::GameState::LeaderboardOpen)
         {
             leaderboardWindow.PollWindow();
@@ -115,11 +123,13 @@ GameWindow::GameWindow()
 
             counter = GameManager::GetNumTilesFlagged();
 
+            // Sets the correct number from the number texture for the timer
             timerMinsTens.setTextureRect(sf::IntRect(21 * ((timeMins / 10) % 10), 0, 21, 32));
             timerMinsUnits.setTextureRect(sf::IntRect(21 * (timeMins % 10), 0, 21, 32));
             timerSecondsTens.setTextureRect(sf::IntRect(21 * ((timeSeconds / 10) % 10), 0, 21, 32));
             timerSecondsUnits.setTextureRect(sf::IntRect(21 * (timeSeconds % 10), 0, 21, 32));
 
+            // Sets the correct number from the number texture for the counter
             counterNegative.setTextureRect(sf::IntRect(210, 0, 21, 32));
             counterHundreds.setTextureRect(sf::IntRect(21 * ((std::abs(counter) / 100) % 10), 0, 21, 32));
             counterTens.setTextureRect(sf::IntRect(21 * ((std::abs(counter) / 10) % 10), 0, 21, 32));
@@ -128,6 +138,7 @@ GameWindow::GameWindow()
             sf::Vector2f mousePos(sf::Mouse::getPosition(window));
             sf::Event event;
 
+            // Polls the window for events
             while (window.pollEvent(event))
             {
                 if (event.type == sf::Event::Closed)
@@ -135,16 +146,20 @@ GameWindow::GameWindow()
                     window.close();
                 }
 
+                // If mouse button released
                 if (event.type == sf::Event::MouseButtonReleased)
                 {
                     for (int i = 0; i < rows; i++)
                     {
                         for (int j = 0; j < columns; j++)
                         {
+                            // If tile is moused over while the game isn't over and isn't paused
                             if (tiles[j][i]->IsPressed(mousePos) && !GameManager::IsGameOver() && GameManager::GetState() != GameManager::GameState::Paused)
                             {
+                                // If that tile is left clicked on
                                 if (event.mouseButton.button == sf::Mouse::Left)
                                 {
+                                    // If click returns false (mine clicked on)
                                     if (!tiles[j][i]->Click())
                                     {
                                         std::cout << "Game Lose" << std::endl;
@@ -152,8 +167,10 @@ GameWindow::GameWindow()
                                         GameManager::SetState(GameManager::GameState::Lose);
                                         GameManager::PauseTimer();
                                     }
+                                    // Click returns true, valid move 
                                     else
                                     {
+                                        // Checks if all tiles that aren't mines are revealed
                                         if ((columns * rows) - mines == GameManager::GetNumTilesRevealed())
                                         {
                                             std::cout << "Game Win" << std::endl;
@@ -166,6 +183,7 @@ GameWindow::GameWindow()
                                         }
                                     }
                                 }
+                                // If that tile is right clicked on
                                 else if (event.mouseButton.button == sf::Mouse::Right)
                                 {
                                     tiles[j][i] -> ToggleFlagged();
@@ -174,6 +192,7 @@ GameWindow::GameWindow()
                         }
                     }
 
+                    // Checks for clicks on the other buttons
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
                         if (faceButton.IsPressed(mousePos))
@@ -202,6 +221,7 @@ GameWindow::GameWindow()
 
         window.clear(sf::Color::White);
 
+        // Renders each tile 
         for (std::vector<Tile*> row : tiles)
         {
             for (Tile* tile : row)
@@ -210,25 +230,30 @@ GameWindow::GameWindow()
             }
         }
 
+        // Renders buttons
         faceButton.Draw(window);
         debugButton.Draw(window);
         playPauseButton.Draw(window);
         leaderboardButton.Draw(window);
 
+        // Renders timer
         window.draw(timerMinsTens);
         window.draw(timerMinsUnits);
         window.draw(timerSecondsTens);
         window.draw(timerSecondsUnits);
 
+        // Renders counter
         window.draw(counterHundreds);
         window.draw(counterTens);
         window.draw(counterUnits);
 
+        // Dims main window if leaderboard open
         if (GameManager::GetState() == GameManager::GameState::LeaderboardOpen)
         {
             window.draw(overlay);
         }
 
+        // Adds minus sign to counter if number goes negative
         if (GameManager::GetNumTilesFlagged() < 0)
         {
             window.draw(counterNegative);
@@ -237,6 +262,7 @@ GameWindow::GameWindow()
         window.display();
     }
 
+    // Deletes all tiles from memory when closing the game
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < columns; j++)
@@ -246,6 +272,7 @@ GameWindow::GameWindow()
     }
 }
 
+// Creates the mine grid
 void GameWindow::GenerateGrid(int columns, int rows, int mines)
 {
     for (int i = 0; i < rows; i++)
@@ -258,8 +285,8 @@ void GameWindow::GenerateGrid(int columns, int rows, int mines)
 
     srand(time(0));
 
+    // Places the mines randomly on the grid 
     int placedMines = 0;
-
     while (placedMines < mines)
     {
         int x = rand() % columns;
@@ -279,19 +306,24 @@ void GameWindow::GenerateGrid(int columns, int rows, int mines)
     {
         for (int j = 0; j < columns; j++)
         {
+            // Loops through all the adjacents tiles
+
             currentTile = tiles[j][i];
 
             for (int k = -1; k < 2; k++)
             {
                 for (int l = -1; l < 2; l++)
                 {
+                    // Skips the current tile or if the tile is a mine
                     if ((k == 0 && l == 0) || currentTile -> GetAdjacentMinesCount() == -1)
                     {
                         continue;
                     }
 
+                    // Checks the coordinates are within the bounds of the grid
                     if ((l + j) >= 0 && (l + j) < columns && (k + i) >= 0 && (k + i) < rows)
                     {
+                        // Adds to adjacent tiles if it is not a mine
                         if (tiles[l + j][k + i] -> GetAdjacentMinesCount() != -1)
                         {
                             currentTile -> AddAdjacentTile(tiles[l + j][k + i]);
@@ -307,12 +339,14 @@ void GameWindow::GenerateGrid(int columns, int rows, int mines)
     }
 }
 
+// Resets all game data and visuals to their original state
 void GameWindow::ResetGame()
 {
     int columns = ResourceManager::GetColumns();
     int rows = ResourceManager::GetRows();
     int mines = ResourceManager::GetMines();
 
+    // Deletes all tiles created from memory
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < columns; j++)

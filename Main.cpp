@@ -8,6 +8,7 @@
 
 int main()
 {
+    // Loads data
     ResourceManager::LoadConfig();
     ResourceManager::LoadScores();
     ResourceManager::LoadFont("font.ttf");
@@ -26,11 +27,9 @@ int main()
         ResourceManager::LoadTexture("number_" + std::to_string(i + 1) + ".png");
     }
 
-    GameManager::Initialize();
+    GameManager::ResetData();
 
-    //std::cout << ResourceManager::GetColumns() << std::endl;
-    //std::cout << ResourceManager::GetRows() << std::endl;
-
+    // Opens the welcome window
     WelcomeWindow welcomeWindow;
 
     return 0;

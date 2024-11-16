@@ -9,6 +9,7 @@ WelcomeWindow::WelcomeWindow()
 
     sf::Font font = ResourceManager::GetFont("font.ttf");
     
+    // Sets text attributes
     sf::Text welcomeText("WELCOME TO MINESWEEPER!", font, 24);
     welcomeText.setStyle(sf::Text::Underlined | sf::Text::Bold);
     welcomeText.setFillColor(sf::Color::White);
@@ -38,6 +39,7 @@ WelcomeWindow::WelcomeWindow()
 
             if (event.type == sf::Event::TextEntered)
             {
+                // Makes the text capitalise the first letter and lowercase the rest
                 if (std::isalpha(event.text.unicode) && inputString.length() < 10)
                 {
                     char letter = static_cast<char>(event.text.unicode);
@@ -46,10 +48,12 @@ WelcomeWindow::WelcomeWindow()
 
                     inputString += letter;
                 }
+                // Removes end of string if backspace pressed
                 else if (event.text.unicode == '\b' && !inputString.empty())
                 {
                     inputString.pop_back();
                 }
+                // Opens game window if enter pressed 
                 else if (event.text.unicode == '\r' && !inputString.empty())
                 {
                     window.close();
@@ -57,6 +61,7 @@ WelcomeWindow::WelcomeWindow()
                     GameWindow gameWindow;
                 }
 
+                // Adds the carot to the end of the string
                 inputText.setString(inputString + "|");
                 GameManager::SetTextPosition(inputText, window.getSize().x / 2.f, (window.getSize().y / 2.f) - 45.f);
             }
